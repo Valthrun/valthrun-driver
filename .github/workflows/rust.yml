@@ -14,11 +14,6 @@ jobs:
     name: Rust Check
     runs-on: ubuntu-latest
     steps:
-      - name: Install toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: nightly
-          override: true
       - uses: actions/checkout@v3
       - name: Check fmt
         run: rustup component add rustfmt && cargo fmt --check
@@ -39,8 +34,6 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
-      - name: Install toolchain
-        uses: actions-rs/toolchain@v1
       - uses: Swatinem/rust-cache@v2
         with:
           cache-on-failure: true
@@ -54,8 +47,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - name: Install toolchain
-        uses: actions-rs/toolchain@v1
       - uses: Swatinem/rust-cache@v2
         with:
           cache-on-failure: true
