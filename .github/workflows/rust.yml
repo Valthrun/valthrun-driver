@@ -1,0 +1,66 @@
+name: Rust
+
+on:
+  push:
+    branches: ["master", "release"]
+  pull_request:
+    branches: ["master"]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  rust-check:
+    name: Rust Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          override: true
+      - uses: actions/checkout@v3
+      - name: Check fmt
+        run: rustup component add rustfmt && cargo fmt --check
+
+  build-libum:
+    name: libum (${{ matrix.build }})
+    needs: [rust-check]
+    strategy:
+      matrix:
+        build: [linux]
+        include:
+          - build: linux
+            os: ubuntu-22.04
+
+          - build: windows
+            os: windows-latest
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install toolchain
+        uses: actions-rs/toolchain@v1
+      - uses: Swatinem/rust-cache@v2
+        with:
+          cache-on-failure: true
+      - name: Build
+        run: cargo build --verbose --release --package vtd-libum
+
+  build-driver-usermode:
+    name: Usermode Driver (Windows)
+    runs-on: windows-latest
+    needs: [rust-check]
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install toolchain
+        uses: actions-rs/toolchain@v1
+      - uses: Swatinem/rust-cache@v2
+        with:
+          cache-on-failure: true
+
+      - name: Build
+        run: cargo build --verbose --release --package driver-usermode
+        env:
+          RUSTFLAGS: -Ctarget-feature=+crt-static
