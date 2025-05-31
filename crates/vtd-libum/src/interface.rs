@@ -1,56 +1,27 @@
 use core::{
     mem,
-    sync::atomic::{
-        AtomicUsize,
-        Ordering,
-    },
+    sync::atomic::{AtomicUsize, Ordering},
 };
-use std::{
-    env,
-    error::Error,
-    fs,
-    path::PathBuf,
-};
+use std::{env, error::Error, fs, path::PathBuf};
 
 use libloading::Library;
 use obfstr::obfstr;
 use vtd_protocol::{
     command::{
-        DriverCommand,
-        DriverCommandCr3ShenanigansDisable,
-        DriverCommandCr3ShenanigansEnable,
-        DriverCommandInitialize,
-        DriverCommandInputKeyboard,
-        DriverCommandInputMouse,
-        DriverCommandMemoryRead,
-        DriverCommandMemoryWrite,
-        DriverCommandMetricsReportSend,
-        DriverCommandProcessList,
-        DriverCommandProcessModules,
-        DriverCommandProcessProtection,
-        InitializeResult,
-        KeyboardState,
-        MouseState,
-        ProcessProtectionMode,
-        VersionInfo,
+        DriverCommand, DriverCommandCr3ShenanigansDisable, DriverCommandCr3ShenanigansEnable,
+        DriverCommandInitialize, DriverCommandInputKeyboard, DriverCommandInputMouse,
+        DriverCommandMemoryRead, DriverCommandMemoryWrite, DriverCommandMetricsReportSend,
+        DriverCommandProcessList, DriverCommandProcessModules, DriverCommandProcessProtection,
+        InitializeResult, KeyboardState, MouseState, ProcessProtectionMode, VersionInfo,
     },
     types::{
-        DirectoryTableType,
-        DriverFeature,
-        MemoryAccessResult,
-        ProcessId,
-        ProcessInfo,
+        DirectoryTableType, DriverFeature, MemoryAccessResult, ProcessId, ProcessInfo,
         ProcessModuleInfo,
     },
-    CommandResult,
-    FnCommandHandler,
-    PROTOCOL_VERSION,
+    CommandResult, FnCommandHandler, PROTOCOL_VERSION,
 };
 
-use crate::{
-    IResult,
-    InterfaceError,
-};
+use crate::{IResult, InterfaceError};
 
 /// Interface for a Valthrun memory driver
 pub struct DriverInterface {
@@ -235,12 +206,14 @@ impl DriverInterface {
                 .position(|v| *v == 0)
                 .unwrap_or(error_buffer.len());
             error_buffer.truncate(error_length);
-            String::from_utf8_lossy_owned(error_buffer)
+            String::from_utf8_lossy(&error_buffer)
         };
 
         Err(match result {
-            CommandResult::Success => return Ok(error),
-            CommandResult::Error => InterfaceError::CommandGenericError { message: error },
+            CommandResult::Success => return Ok(error.to_string()),
+            CommandResult::Error => InterfaceError::CommandGenericError {
+                message: error.to_string(),
+            },
 
             CommandResult::CommandParameterInvalid => InterfaceError::CommandGenericError {
                 message: format!("parameter invalid: {}", error),
