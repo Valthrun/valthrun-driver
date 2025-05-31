@@ -186,9 +186,9 @@ impl DriverInterface {
                 }
                 Err(err) => {
                     if let Some(err) = err.source() {
-                        log::debug!("    error: {:#}", err);
+                        log::error!("Failed to load driver {}: {:#}", path.display(), err);
                     } else {
-                        log::debug!("    error: {:#}", err);
+                        log::error!("Failed to load driver {}: {:#}", path.display(), err);
                     }
                 }
             }
