@@ -1,0 +1,24 @@
+[package]
+name = "vtd-libum"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+vtd-protocol = { version = "*", path = "../vtd-protocol" }
+
+windows = { version = "0.48.0", features = [
+    "Win32_Storage_FileSystem",
+    "Win32_Foundation",
+    "Win32_Security",
+    "Win32_System_IO",
+] }
+thiserror = "1.0.44"
+libloading = "0.8.5"
+log = "0.4.27"
+obfstr = "0.4.4"
+
+[dev-dependencies]
+rand = "0.8.5"
+clap = { version = "4.5.23", features = ["derive"] }
+anyhow = "1.0.98"
+env_logger = "0.11.8"
