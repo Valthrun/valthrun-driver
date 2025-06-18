@@ -66,7 +66,7 @@ impl InterfaceError {
                     obfstr!("Ensure that the according \"libdriver_[...].so\" file is present."),
                     obfstr!(""),
                     obfstr!("For more information please refer to"),
-                    obfstr!("https://wiki.valth.run/troubleshooting/overlay/driver_interface_missing"),
+                    obfstr!("https://wiki.valth.run/link/3"),
                 ].join("\n")
             },
             &InterfaceError::InitializeDriverUnavailable => {
@@ -77,7 +77,7 @@ impl InterfaceError {
                     obfstr!(""),
                     obfstr!("For more information please refer to"),
                     obfstr!(
-                        "https://wiki.valth.run/troubleshooting/overlay/driver_interface_unavailable"
+                        "https://wiki.valth.run/link/4"
                     ),
                 ].join("\n")
             }
@@ -93,7 +93,7 @@ impl InterfaceError {
                     obfstr!(""),
                     obfstr!("For more information please refer to"),
                     obfstr!(
-                        "https://wiki.valth.run/troubleshooting/overlay/driver_protocol_mismatch"
+                        "https://wiki.valth.run/link/5"
                     ),
                 ].join("\n")
             }
