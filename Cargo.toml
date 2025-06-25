@@ -1,6 +1,12 @@
 [workspace]
 resolver = "2"
-members = ["crates/vtd-protocol", "crates/vtd-libum", "drivers/driver-usermode"]
+members = [
+    "crates/vtd-protocol",
+    "crates/vtd-libum",
+    "crates/vtd-libum-ffi",
+
+    "drivers/driver-usermode",
+]
 
 [workspace.package]
 edition = "2024"
