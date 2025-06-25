@@ -9,7 +9,6 @@ fn main() {
         .join("..")
         .join("..")
         .join("..")
-        .join("generated")
         .join("include");
 
     cbindgen::generate(crate_dir).map_or_else(

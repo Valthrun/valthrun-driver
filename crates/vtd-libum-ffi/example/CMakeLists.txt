@@ -10,7 +10,7 @@ function(find_libum_ffi)
     set_target_properties(vtd_libum_ffi PROPERTIES
         IMPORTED_LOCATION "${RUST_BUILD_DIRECTORY}/vtd_libum_ffi.dll"
         IMPORTED_IMPLIB "${RUST_BUILD_DIRECTORY}/vtd_libum_ffi.dll.lib"
-        INTERFACE_INCLUDE_DIRECTORIES "${RUST_BUILD_DIRECTORY}/generated/include"
+        INTERFACE_INCLUDE_DIRECTORIES "${RUST_BUILD_DIRECTORY}/include"
     )
 endfunction()
 

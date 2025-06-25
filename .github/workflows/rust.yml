@@ -40,6 +40,41 @@ jobs:
       - name: Build
         run: cargo build --verbose --release --package vtd-libum
 
+  build-libum-ffi:
+    name: libum FFI (${{ matrix.build }})
+    needs: [rust-check]
+    strategy:
+      matrix:
+        build: [linux]
+        include:
+          - build: linux
+            os: ubuntu-22.04
+            asset-name: linux
+            asset-path: |
+              target/release/libvtd_libum_ffi.so
+              target/release/include
+
+          - build: windows
+            os: windows-latest
+            asset-name: windows
+            asset-path: |
+              target/release/vtd_libum_ffi.dll.lib
+              target/release/vtd_libum_ffi.dll
+              target/release/include
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: Swatinem/rust-cache@v2
+        with:
+          cache-on-failure: true
+      - name: Build
+        run: cargo build --verbose --release --package vtd-libum-ffi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: "libum-ffi-${{ matrix.asset-name }}"
+          path: "${{ matrix.asset-path }}"
+
   build-driver-usermode:
     name: Usermode Driver (Windows)
     runs-on: windows-latest
