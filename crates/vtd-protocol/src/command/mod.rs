@@ -49,6 +49,7 @@ define_command!(DriverCommandInputKeyboard, 0x05);
 define_command!(DriverCommandInputMouse, 0x06);
 define_command!(DriverCommandMetricsReportSend, 0x07);
 define_command!(DriverCommandProcessProtection, 0x08);
+define_command!(DriverCommandMetricsFlush, 0x09);
 
 define_command!(DriverCommandCr3ShenanigansEnable, 0x09);
 define_command!(DriverCommandCr3ShenanigansDisable, 0x0A);

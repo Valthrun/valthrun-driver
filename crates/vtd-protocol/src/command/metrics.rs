@@ -30,3 +30,22 @@ impl Default for DriverCommandMetricsReportSend {
         }
     }
 }
+
+#[derive(Debug, Clone, Copy)]
+#[repr(C)]
+pub struct DriverCommandMetricsFlush {
+    // In:
+    pub blocking: bool,
+
+    // Out:
+    pub queue_remaining: usize,
+}
+
+impl Default for DriverCommandMetricsFlush {
+    fn default() -> Self {
+        DriverCommandMetricsFlush {
+            blocking: true,
+            queue_remaining: 0,
+        }
+    }
+}
