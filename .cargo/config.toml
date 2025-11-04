@@ -1,0 +1,2 @@
+[env]
+VT_METRICS_PUBLIC_KEY = "../resources/default-key.der"

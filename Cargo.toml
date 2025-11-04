@@ -4,6 +4,7 @@ members = [
     "crates/vtd-protocol",
     "crates/vtd-libum",
     "crates/vtd-libum-ffi",
+    "crates/vtd-metrics",
 
     "drivers/driver-usermode",
 ]
