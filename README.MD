@@ -11,7 +11,7 @@ To use the user-mode driver interface, simply add `vtd-libum` as a dependency in
 
 ```toml
 [dependencies]
-vtd-libum = { git = "https://github.com/Valthrun/valthrun-driver", rev = "3931af3" }
+vtd-libum = { git = "https://github.com/Valthrun/valthrun-driver", rev = "25bf0e0" }
 ```
 
 > ⚠️ Note:  
