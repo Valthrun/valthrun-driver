@@ -28,6 +28,7 @@ use vtd_protocol::{
         DriverCommandInputMouse,
         DriverCommandMemoryRead,
         DriverCommandMemoryWrite,
+        DriverCommandMetricsFlush,
         DriverCommandMetricsReportSend,
         DriverCommandProcessList,
         DriverCommandProcessModules,
@@ -304,8 +305,7 @@ impl DriverInterface {
         command.client_protocol_version = PROTOCOL_VERSION;
         command.client_version = {
             let mut version_info = VersionInfo::default();
-
-            version_info.set_application_name("valthrun-kinterface");
+            version_info.set_application_name("valthrun-interface");
 
             version_info.version_major = 0;
             version_info.version_minor = 0;
@@ -358,32 +358,13 @@ impl DriverInterface {
     }
 
     #[must_use]
-    pub fn read<T: Copy>(
-        &self,
-        process_id: ProcessId,
-        directory_table_type: DirectoryTableType,
-        address: u64,
-    ) -> IResult<T> {
-        let mut result = unsafe { std::mem::zeroed::<T>() };
-        let result_buff = unsafe {
-            std::slice::from_raw_parts_mut(
-                std::mem::transmute::<_, *mut u8>(&mut result),
-                std::mem::size_of::<T>(),
-            )
-        };
-
-        self.read_slice(process_id, directory_table_type, address, result_buff)?;
-        Ok(result)
-    }
-
-    #[must_use]
-    pub fn read_slice<T: Copy>(
+    pub fn read_slice(
         &self,
         process_id: ProcessId,
         directory_table_type: DirectoryTableType,
 
         address: u64,
-        buffer: &mut [T],
+        buffer: &mut [u8],
     ) -> IResult<()> {
         self.read_calls.fetch_add(1, Ordering::Relaxed);
 
@@ -392,8 +373,8 @@ impl DriverInterface {
         command.directory_table_type = directory_table_type;
         command.address = address;
 
-        command.buffer = buffer.as_mut_ptr() as *mut u8;
-        command.count = mem::size_of::<T>() * buffer.len();
+        command.buffer = buffer.as_mut_ptr();
+        command.count = buffer.len();
 
         self.execute_command(&mut command)?;
         match command.result {
@@ -416,39 +397,21 @@ impl DriverInterface {
     }
 
     #[must_use]
-    pub fn write<T: Copy>(
-        &self,
-        process_id: ProcessId,
-        directory_table_type: DirectoryTableType,
-        address: u64,
-        value: &T,
-    ) -> IResult<()> {
-        let buffer = unsafe {
-            std::slice::from_raw_parts(
-                std::mem::transmute::<_, *mut u8>(value),
-                std::mem::size_of::<T>(),
-            )
-        };
-
-        self.write_slice(process_id, directory_table_type, address, buffer)
-    }
-
-    #[must_use]
     pub fn write_slice<T: Copy>(
         &self,
         process_id: ProcessId,
         directory_table_type: DirectoryTableType,
 
         address: u64,
-        buffer: &[T],
+        buffer: &[u8],
     ) -> IResult<()> {
         let mut command = DriverCommandMemoryWrite::default();
         command.process_id = process_id;
         command.directory_table_type = directory_table_type;
         command.address = address;
 
-        command.buffer = buffer.as_ptr() as *const u8;
-        command.count = mem::size_of::<T>() * buffer.len();
+        command.buffer = buffer.as_ptr();
+        command.count = buffer.len();
 
         self.execute_command(&mut command)?;
         match command.result {
