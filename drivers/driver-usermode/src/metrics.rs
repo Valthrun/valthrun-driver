@@ -1,6 +1,9 @@
 use std::sync::RwLock;
 
-use vtd_metrics::MetricsClient;
+use vtd_metrics::{
+    MetricsClient,
+    MK_INTERFACE_TYPE,
+};
 
 static METRICS: RwLock<Option<MetricsClient>> = RwLock::new(None);
 
@@ -24,7 +27,7 @@ pub fn maybe_init() {
 pub fn init() -> anyhow::Result<()> {
     let metrics = vtd_metrics::create_instance(ureq::agent())?;
 
-    metrics.add_record("interface-type", "usermode");
+    metrics.add_record(MK_INTERFACE_TYPE, "usermode");
     *METRICS.write().unwrap() = Some(metrics);
     Ok(())
 }
