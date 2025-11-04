@@ -12,3 +12,6 @@ pub use mouse::*;
 
 mod keyboard;
 pub use keyboard::*;
+
+mod metrics;
+pub use metrics::*;

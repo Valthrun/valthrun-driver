@@ -1,14 +1,13 @@
+#![feature(inherent_str_constructors)]
+
 use core::slice;
 
 use lazy_static::lazy_static;
 use registry::HandlerRegistry;
-use windows::Win32::System::SystemServices::{
-    DLL_PROCESS_ATTACH,
-    DLL_PROCESS_DETACH,
-};
 
 mod handle;
 mod handler;
+mod metrics;
 mod registry;
 mod util;
 
@@ -25,21 +24,29 @@ fn init_request_handler() -> HandlerRegistry {
     handler.register(&handler::read);
     handler.register(&handler::mouse_move);
     handler.register(&handler::keyboard_state);
+    handler.register(&handler::metrics_report_send);
+    handler.register(&handler::metrics_flush);
 
     handler
 }
 
 #[no_mangle]
-#[allow(non_snake_case)]
-extern "system" fn DllMain(_dll_module: *const (), call_reason: u32, _: *mut ()) -> bool {
-    match call_reason {
-        DLL_PROCESS_ATTACH => {
-            env_logger::init();
-        }
-        DLL_PROCESS_DETACH => (),
-        _ => (),
-    }
+unsafe extern "C" fn startup() {
+    env_logger::init();
 
+    use crate::metrics;
+    metrics::maybe_init();
+}
+
+#[no_mangle]
+unsafe extern "C" fn teardown() {
+    use crate::metrics;
+    metrics::shutdown();
+}
+
+#[no_mangle]
+#[allow(non_snake_case)]
+extern "system" fn DllMain(_dll_module: *const (), _call_reason: u32, _: *mut ()) -> bool {
     true
 }
 

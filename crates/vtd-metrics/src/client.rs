@@ -275,17 +275,23 @@ impl MetricsClient {
         }
     }
 
-    pub fn flush(&self) {
+    pub fn flush(&self, blocking: bool) -> usize {
         let Some(flush_rx) = &self.flush_rx else {
             /* shutdown already done */
-            return;
+            return 0;
         };
 
-        let flush_rx = flush_rx.lock().unwrap();
-        while let Ok(_) = flush_rx.try_recv() {}
+        {
+            let flush_rx = flush_rx.lock().unwrap();
+            while let Ok(_) = flush_rx.try_recv() {}
 
-        let _ = self.worker_action_tx.send(WorkerAction::FlushQueue);
-        let _ = flush_rx.recv();
+            let _ = self.worker_action_tx.send(WorkerAction::FlushQueue);
+            if blocking {
+                let _ = flush_rx.recv();
+            }
+        }
+
+        self.record_queue.lock().unwrap().queue_size()
     }
 
     pub fn shutdown(&mut self) {
@@ -343,7 +349,7 @@ mod test {
         let mut instance = super::create_instance(agent).unwrap();
 
         instance.add_record("test-request", "some-payload");
-        instance.flush();
+        instance.flush(true);
         instance.shutdown();
     }
 }

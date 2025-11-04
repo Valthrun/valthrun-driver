@@ -1,6 +1,6 @@
 [package]
 name = "driver-usermode"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 description = "Valthrun driver user mode interface implementation"
 
@@ -8,6 +8,9 @@ description = "Valthrun driver user mode interface implementation"
 crate-type = ["cdylib"]
 
 [dependencies]
+vtd-protocol = { version = "*", path = "../../crates/vtd-protocol" }
+vtd-metrics = { version = "*", path = "../../crates/vtd-metrics" }
+
 windows = { version = "0.48.0", features = [
     "Win32_Foundation",
     "Win32_System_SystemServices",
@@ -17,7 +20,7 @@ windows = { version = "0.48.0", features = [
     "Win32_UI_Input_KeyboardAndMouse",
 ] }
 lazy_static = "1.5.0"
-vtd-protocol = { version = "0.1.0", path = "../../crates/vtd-protocol" }
 log = "0.4.27"
 anyhow = "1.0.98"
 env_logger = "0.11.8"
+ureq = "3.1.2"

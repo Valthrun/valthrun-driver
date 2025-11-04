@@ -394,12 +394,14 @@ dependencies = [
 
 [[package]]
 name = "driver-usermode"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "anyhow",
  "env_logger",
  "lazy_static",
  "log",
+ "ureq",
+ "vtd-metrics",
  "vtd-protocol",
  "windows 0.48.0",
 ]

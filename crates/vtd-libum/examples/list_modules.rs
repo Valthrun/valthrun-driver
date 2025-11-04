@@ -37,7 +37,7 @@ enum ArgDirectoryTableType {
 
 pub fn main() -> anyhow::Result<()> {
     env_logger::builder()
-        .filter_level(LevelFilter::Info)
+        .filter_level(LevelFilter::Trace)
         .parse_default_env()
         .init();
 
