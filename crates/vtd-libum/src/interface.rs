@@ -437,6 +437,14 @@ impl DriverInterface {
         Ok(())
     }
 
+    pub fn flush_metrics(&self, blocking: bool) -> IResult<usize> {
+        let mut command = DriverCommandMetricsFlush::default();
+        command.blocking = blocking;
+
+        self.execute_command(&mut command)?;
+        Ok(command.queue_remaining)
+    }
+
     pub fn toggle_process_protection(&self, mode: ProcessProtectionMode) -> IResult<()> {
         let mut command = DriverCommandProcessProtection::default();
         command.mode = mode;
