@@ -9,7 +9,11 @@ use std::{
     env,
     error::Error,
     fs,
-    path::PathBuf,
+    ops::Deref,
+    path::{
+        Path,
+        PathBuf,
+    },
 };
 
 use libloading::Library;
@@ -52,9 +56,66 @@ use crate::{
     InterfaceError,
 };
 
+type LibraryStartup = unsafe extern "C" fn() -> ();
+type LibraryTeardown = unsafe extern "C" fn() -> ();
+
+pub struct ValthrunLibrary {
+    inner: Library,
+
+    fn_teardown: Option<LibraryTeardown>,
+}
+
+impl ValthrunLibrary {
+    pub fn load(target: &Path) -> IResult<Self> {
+        let library = unsafe { Library::new(&target) }?;
+
+        let fn_startup = unsafe {
+            library
+                .get::<LibraryStartup>(c"startup".to_bytes_with_nul())
+                .ok()
+        };
+
+        let fn_teardown = unsafe {
+            library
+                .get::<LibraryTeardown>(c"teardown".to_bytes_with_nul())
+                .ok()
+                .map(|v| *v)
+        };
+
+        if let Some(startup) = fn_startup {
+            unsafe {
+                startup();
+            }
+        }
+
+        Ok(Self {
+            inner: library,
+            fn_teardown,
+        })
+    }
+}
+
+impl Deref for ValthrunLibrary {
+    type Target = Library;
+
+    fn deref(&self) -> &Self::Target {
+        &self.inner
+    }
+}
+
+impl Drop for ValthrunLibrary {
+    fn drop(&mut self) {
+        if let Some(teardown) = self.fn_teardown {
+            unsafe {
+                teardown();
+            }
+        }
+    }
+}
+
 /// Interface for a Valthrun memory driver
 pub struct DriverInterface {
-    _library: Library,
+    _library: ValthrunLibrary,
     fn_command_handler: FnCommandHandler,
 
     driver_version: VersionInfo,
@@ -155,30 +216,10 @@ impl DriverInterface {
         result
     }
 
-    fn load_library(target: &PathBuf) -> IResult<Library> {
-        let library = unsafe { Library::new(&target) }?;
-
-        #[cfg(unix)]
-        unsafe {
-            use obfstr::obfcstr;
-
-            type FnStartup = unsafe extern "C" fn() -> ();
-
-            let startup = library
-                .get::<FnStartup>(obfcstr!(c"startup").to_bytes())
-                .ok()
-                .ok_or(InterfaceError::DriverMissingStartupExport)?;
-
-            startup();
-        }
-
-        Ok(library)
-    }
-
     pub fn create_from_env() -> IResult<Self> {
         for path in Self::populate_library_paths() {
             log::debug!("Trying to load driver from {}", path.display());
-            match Self::load_library(&path) {
+            match ValthrunLibrary::load(&path) {
                 Ok(lib) => {
                     log::debug!("    -> success.");
                     log::debug!("Initialize driver interface.",);
@@ -197,7 +238,7 @@ impl DriverInterface {
         Err(InterfaceError::NoDriverFound)
     }
 
-    pub fn create(library: Library) -> IResult<Self> {
+    pub fn create(library: ValthrunLibrary) -> IResult<Self> {
         let fn_command_handler = unsafe { *library.get::<FnCommandHandler>(b"execute_command\0")? };
 
         let mut interface = Self {
